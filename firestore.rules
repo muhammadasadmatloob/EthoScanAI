@@ -1,0 +1,45 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidAudit(data) {
+      return data.userId is string &&
+             data.userId == request.auth.uid &&
+             data.timestamp is string &&
+             data.score is number &&
+             data.score >= 0 && data.score <= 100 &&
+             data.issueList is list &&
+             (data.issueList.size() == 0 || (data.issueList[0].type is string && data.issueList[0].description is string));
+    }
+
+    // Users and their audits
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      
+      match /audits/{auditId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidAudit(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

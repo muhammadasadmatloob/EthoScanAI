@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "Audit": {
+      "title": "Audit",
+      "description": "An ethical UX compliance audit result",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "score": { "type": "number" },
+        "issueList": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+              "description": { "type": "string" },
+              "recommendation": { "type": "string" }
+            }
+          }
+        },
+        "status": { "type": "string", "enum": ["pending", "completed", "failed"] }
+      },
+      "required": ["userId", "timestamp", "score", "issueList"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/audits/{auditId}": {
+      "schema": "Audit",
+      "description": "User's audit history"
+    }
+  }
+}
