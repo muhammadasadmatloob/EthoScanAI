@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Upload, X, Scan, ShieldAlert, Sparkles, Loader2 } from 'lucide-react';
+import { Upload, X, Scan, ShieldAlert, Sparkles, Loader2, Globe } from 'lucide-react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db, googleProvider, handleFirestoreError } from '@/lib/firebase';
 import { signInWithPopup } from 'firebase/auth';
@@ -43,7 +43,10 @@ export default function AuditScanner() {
       }
     }
 
-    if (!file || !preview) return;
+    if (!file && !urlInput) {
+      alert("Please provide either a screenshot or a website URL to begin the audit.");
+      return;
+    }
 
     setIsScanning(true);
     setScanStatus('Initializing deep compliance check...');
@@ -51,17 +54,16 @@ export default function AuditScanner() {
     try {
       setScanStatus('Automated agent is analyzing your interface architecture...');
       
-      const base64Data = preview.split(',')[1];
+      const parts: any[] = [{ text: `${ETHICAL_AUDIT_PROMPT}\n\nAdditional Context: The website URL is ${urlInput || 'Not provided'}` }];
+      
+      if (preview) {
+        const base64Data = preview.split(',')[1];
+        parts.push({ inlineData: { data: base64Data, mimeType: file?.type || 'image/png' } });
+      }
+
       const result = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: [
-          {
-            parts: [
-              { inlineData: { data: base64Data, mimeType: file.type } },
-              { text: ETHICAL_AUDIT_PROMPT }
-            ]
-          }
-        ],
+        contents: [{ parts }],
         config: {
           responseMimeType: "application/json"
         }
@@ -76,7 +78,8 @@ export default function AuditScanner() {
 
       const auditData = {
         userId: currentUser.uid,
-        imageUrl: '', // In a real app, upload to Storage. For now we use the ID as reference. 
+        url: urlInput || '',
+        imageUrl: '', 
         timestamp: new Date().toISOString(),
         score: analysis.score || 0,
         issueList: (analysis.issue_list || []).map((issue: any) => ({
@@ -104,8 +107,10 @@ export default function AuditScanner() {
     }
   };
 
+  const [urlInput, setUrlInput] = useState('');
+
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto px-4 md:px-0">
       <AnimatePresence mode="wait">
         {!preview ? (
           <motion.div
@@ -113,22 +118,59 @@ export default function AuditScanner() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-6"
           >
-            <div className="flex gap-4">
-              <div 
-                className="flex-grow glass-card p-2 flex items-center pr-4 shadow-2xl cursor-pointer hover:bg-white/5 transition-colors"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="bg-transparent border-none outline-none flex-grow px-4 text-white/40 italic text-sm">
-                  {file ? file.name : "Upload interface snapshot..."}
+            {/* Multi-input Area */}
+            <div className="space-y-4">
+              <div className="glass-card p-4 md:p-6 shadow-2xl space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-1 block">Step 1: Website Context</label>
+                  <input 
+                    type="url"
+                    placeholder="https://your-website.com"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-hidden focus:border-emerald-500/50 transition-colors"
+                  />
                 </div>
-                <button className="bg-white text-black px-8 py-3.5 rounded-xl font-bold hover:bg-emerald-400 transition-all flex items-center gap-2 active:scale-95">
-                  <Scan className="w-4 h-4" />
-                  Apply Vision Scan
+
+                <div className="relative flex items-center gap-4 py-2">
+                  <div className="flex-grow h-px bg-white/5"></div>
+                  <span className="text-[10px] font-bold text-gray-700 uppercase tracking-widest">AND / OR</span>
+                  <div className="flex-grow h-px bg-white/5"></div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-1 block">Step 2: Interface Snapshot</label>
+                  <div 
+                    className="w-full h-32 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white/5 transition-all group"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="w-6 h-6 text-gray-600 group-hover:text-emerald-500 transition-colors" />
+                    <span className="text-xs text-gray-500 font-medium">{file ? file.name : "Click to upload screenshot"}</span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={startScan}
+                  disabled={isScanning || (!file && !urlInput)}
+                  className="w-full py-4 bg-white text-black rounded-xl font-bold text-sm shadow-xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-30"
+                >
+                  {isScanning ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>{scanStatus}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Scan className="w-5 h-5" />
+                      <span>Start Professional Ethics Audit</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
+
             <input 
               type="file" 
               ref={fileInputRef} 
@@ -174,10 +216,17 @@ export default function AuditScanner() {
             </div>
 
             <div className="flex flex-col gap-4">
+              {urlInput && (
+                <div className="px-4 py-2 bg-white/5 rounded-lg border border-white/10 flex items-center gap-3">
+                  <Globe className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs text-gray-400 truncate">{urlInput}</span>
+                </div>
+              )}
+              
               <button 
                 onClick={startScan}
                 disabled={isScanning}
-                className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-xl hover:bg-emerald-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-xl hover:bg-emerald-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed group flex items-center justify-center gap-3"
               >
                 {isScanning ? (
                   <>

@@ -22,7 +22,7 @@ export default function LandingPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-semibold mb-6 uppercase tracking-wider"
           >
-            Compliance Engine v3.1 Flash
+            Compliance Intelligence Protocol v3.5
           </motion.div>
           
           <motion.h1 
@@ -38,9 +38,9 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-gray-400 mb-12 max-w-xl leading-relaxed"
+            className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl leading-relaxed"
           >
-            The world&apos;s first automated ethical auditor. Scan your site to identify deceptive patterns, avoid regulatory risks, and increase user loyalty through transparency.
+            Transform your interface into a benchmark of transparency. Our automated vision auditing identifies architectural friction and deceptive patterns that compromise your long-term integrity and regulatory standing.
           </motion.p>
 
           <AuditScanner />
@@ -92,6 +92,34 @@ export default function LandingPage() {
             </div>
             <h3 className="text-xl font-display font-bold">Comprehensive Pattern Audit</h3>
             <p className="text-white/40 leading-relaxed">Our advanced vision protocol scans every pixel for forced actions and hidden costs that compromise long-term user value.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Industry Standards Section */}
+      <section className="container mx-auto px-6 py-24 border-t border-white/5">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <h2 className="text-3xl font-display font-bold uppercase tracking-tight">The Standard for Ethical Design</h2>
+          <p className="text-gray-500 leading-relaxed text-lg">
+            EthoScan AI was established to bridge the gap between complex regulatory requirements and practical interface design. Our objective is to automate the identification of structural patterns that compromise user trust, ensuring that global digital standards are met with precision and integrity.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8">
+            <div className="p-4 glass-card border-white/5">
+              <span className="block text-emerald-500 font-bold text-lg mb-1">98%</span>
+              <span className="text-[10px] text-gray-600 uppercase tracking-widest font-bold">Detection Accuracy</span>
+            </div>
+            <div className="p-4 glass-card border-white/5">
+              <span className="block text-emerald-500 font-bold text-lg mb-1">2026</span>
+              <span className="text-[10px] text-gray-600 uppercase tracking-widest font-bold">Compliance Standard</span>
+            </div>
+            <div className="p-4 glass-card border-white/5">
+              <span className="block text-emerald-500 font-bold text-lg mb-1">Global</span>
+              <span className="text-[10px] text-gray-600 uppercase tracking-widest font-bold">Legal Anchoring</span>
+            </div>
+            <div className="p-4 glass-card border-white/5">
+              <span className="block text-emerald-500 font-bold text-lg mb-1">Instant</span>
+              <span className="text-[10px] text-gray-600 uppercase tracking-widest font-bold">Protocol Execution</span>
+            </div>
           </div>
         </div>
       </section>

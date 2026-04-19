@@ -4,9 +4,26 @@
   --font-sans: var(--font-sans), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), "Inter", ui-sans-serif, system-ui, sans-serif;
   
-  --color-brand-primary: #10B981; /* Emerald 500 */
-  --color-brand-secondary: #3b82f6; /* Blue 500 for variety in gradients */
+  /* Brand Colors to Hex (to avoid html2canvas oklab unsupported error) */
+  --color-brand-primary: #10B981;
+  --color-brand-secondary: #3b82f6;
   --color-bg-deep: #050505;
+
+  /* Overriding default Tailwind colors to Hex for html2canvas compatibility */
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10B981;
+  --color-emerald-600: #059669;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-800: #1f2937;
+  --color-white: #ffffff;
+  --color-black: #000000;
 }
 
 @layer base {
